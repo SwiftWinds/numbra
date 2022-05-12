@@ -12,7 +12,6 @@ const CalcTextarea = styled("textarea")`
   width: 100vw;
   height: 100vh;
   font-size: 1.5rem;
-  font-family: inherit;
 `;
 
 const App: Component = () => {
@@ -25,7 +24,11 @@ const App: Component = () => {
     setBody(val);
     setAnswers(val.split("\n").map(n => {
       try {
-        return p.evaluate(n);
+        const res = p.evaluate(n);
+        if (typeof res === "function") {
+          return "f(x)";
+        }
+        return res;
       } catch (e) {
         return undefined;
       }
@@ -35,7 +38,8 @@ const App: Component = () => {
 
   return (
     <>
-      <CalcTextarea onInput={handleChange} value={body()} />
+      <CalcTextarea onInput={handleChange} value={body()} spellcheck={false}
+                    autocapitalize="off" autocomplete="off" />
       <For each={answers()}>
         {(answer, i) => (
           <Answer idx={i()}>{answer}</Answer>
