@@ -5,7 +5,7 @@ const Answer = styled("div")(
   font-size: 1.5rem;
   position: absolute;
   right: 5px;
-  top: ${idx * 28.8}px;
+  top: ${idx * 28.8 - 1}px;
 `);
 
 export default Answer;

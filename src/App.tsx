@@ -1,8 +1,9 @@
 import type { Component } from "solid-js";
 import { createSignal, For } from "solid-js";
-import { parser } from "mathjs";
-import Answer from "./Answer";
+import { all, create } from "mathjs";
 import { styled } from "solid-styled-components";
+
+import Answer from "./Answer";
 
 const CalcTextarea = styled("textarea")`
   border: none;
@@ -10,29 +11,41 @@ const CalcTextarea = styled("textarea")`
   resize: none;
   outline: none;
   width: 100vw;
-  height: 100vh;
+  height: 99vh;
   font-size: 1.5rem;
+  font-family: inherit;
 `;
 
 const App: Component = () => {
   const [body, setBody] = createSignal("");
   const [answers, setAnswers] = createSignal([]);
 
+  const mathjs = create(all);
+  mathjs.config({ number: "Fraction" });
+
   const handleChange = (e: InputEvent) => {
-    const p = parser();
+    const p = mathjs.parser();
     const val = e.target.value;
     setBody(val);
-    setAnswers(val.split("\n").map(n => {
-      try {
-        const res = p.evaluate(n);
-        if (typeof res === "function") {
-          return "f(x)";
-        }
-        return res;
-      } catch (e) {
-        return undefined;
+    const sols = [];
+    console.log("here");
+    for (const [i, line] of val.split("\n").entries()) {
+      console.log({ i, line });
+      if (i > 0) {
+        p.set("ans", (mathjs.typeOf(sols[i - 1]) === "number" || mathjs.typeOf(sols[i - 1]) === "Fraction") ? sols[i - 1] : undefined);
       }
-    }));
+      try {
+        const sol = p.evaluate(line);
+        if (typeof sol === "function") {
+          sols.push("f(x)");
+        } else {
+          sols.push(sol);
+        }
+      } catch (e) {
+        sols.push(undefined);
+      }
+    }
+    setAnswers(sols);
     console.log(answers());
   };
 
@@ -42,7 +55,8 @@ const App: Component = () => {
                     autocapitalize="off" autocomplete="off" />
       <For each={answers()}>
         {(answer, i) => (
-          <Answer idx={i()}>{answer}</Answer>
+          <Answer
+            idx={i()}>{answer?.n}{answer?.d === 1 ? "" : `/${answer?.d}`}</Answer>
         )}
       </For>
     </>
