@@ -1,17 +1,22 @@
 import type { Component } from "solid-js";
 import { createSignal } from "solid-js";
-import { sqrt } from "mathjs";
+import { parser } from "mathjs";
 
 const App: Component = () => {
   const [body, setBody] = createSignal("");
   const [answers, setAnswers] = createSignal([]);
 
   const handleChange = (e: KeyboardEvent) => {
+    const p = parser();
     const val = e.target.value;
     setBody(val);
-    console.log(sqrt(3));
-    console.log(val.split("\n").map(Number));
-    setAnswers(val.split("\n").map(Number).map(n => sqrt(n)));
+    setAnswers(val.split("\n").map(n => {
+      try {
+        return p.evaluate(n);
+      } catch (e) {
+        return undefined;
+      }
+    }));
     console.log(answers());
   };
 
