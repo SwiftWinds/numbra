@@ -1,20 +1,8 @@
 import type { Component } from "solid-js";
 import { createSignal, For } from "solid-js";
 import { all, create } from "mathjs";
-import { styled } from "solid-styled-components";
 
 import Answer from "./Answer";
-
-const CalcTextarea = styled("textarea")`
-  border: none;
-  background-color: #212226;
-  resize: none;
-  outline: none;
-  width: 100vw;
-  height: 99vh;
-  font-size: 1.5rem;
-  font-family: inherit;
-`;
 
 const App: Component = () => {
   const [body, setBody] = createSignal("");
@@ -51,14 +39,28 @@ const App: Component = () => {
 
   return (
     <>
-      <CalcTextarea onInput={handleChange} value={body()} spellcheck={false}
-                    autocapitalize="off" autocomplete="off" />
+      <textarea onInput={handleChange} value={body()} spellcheck={false}
+                autocapitalize="off" autocomplete="off" />
       <For each={answers()}>
         {(answer, i) => (
           <Answer
             idx={i()}>{answer?.n}{answer?.d === 1 ? "" : `/${answer?.d}`}</Answer>
         )}
       </For>
+      <style jsx>
+        {`
+          textarea {
+            border: none;
+            background-color: #212226;
+            resize: none;
+            outline: none;
+            width: 100vw;
+            height: 99vh;
+            font-size: 1.5rem;
+            font-family: inherit;
+          }
+        `}
+      </style>
     </>
   );
 };
