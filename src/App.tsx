@@ -1,5 +1,5 @@
 import type { Component } from "solid-js";
-import { createSignal, For } from "solid-js";
+import { createEffect, createSignal, For, onCleanup, onMount } from "solid-js";
 import { all, create } from "mathjs";
 
 import Answer from "./Answer";
@@ -7,9 +7,43 @@ import Answer from "./Answer";
 const App: Component = () => {
   const [body, setBody] = createSignal("");
   const [answers, setAnswers] = createSignal([]);
+  const [mode, setMode] = createSignal("regular");
 
-  const mathjs = create(all);
-  mathjs.config({ number: "Fraction" });
+  createEffect(() => {
+    const mathjs = create(all);
+    if (mode() === "frac") {
+      mathjs.config({ number: "Fraction" });
+    }
+  });
+
+  const handleKeyPress = (e: KeyboardEvent) => {
+    if (e.shiftKey && e.ctrlKey) {
+      switch (e.key) {
+        case "r":
+          setMode("reg");
+          break;
+        case "s":
+          setMode("sci");
+          break;
+        case "f":
+          setMode("frac");
+          break;
+        case "p":
+          setMode("proper-frac");
+          break;
+      }
+    }
+  };
+
+  onMount(() => {
+    // attach the event listener
+    document.addEventListener("keydown", handleKeyPress);
+  });
+
+  onCleanup(() => {
+    // remove the event listener
+    document.removeEventListener("keydown", handleKeyPress);
+  });
 
   const handleChange = (e: InputEvent) => {
     const p = mathjs.parser();

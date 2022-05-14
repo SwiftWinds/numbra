@@ -1,9 +1,12 @@
 import { children, Component } from "solid-js";
 
 const Answer: Component = (props) => {
-  const c = children(() => props.children);
+  const body = children(() => props.children);
+  const handleCopyAnswer = () => {
+    navigator.clipboard.writeText(body().slice(0, -1));
+  };
   return <>
-    <div>{c()}</div>
+    <div onClick={handleCopyAnswer}>{body()}</div>
     <style jsx dynamic>
       {`
         div {
